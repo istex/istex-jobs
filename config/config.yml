@@ -1,0 +1,43 @@
+%YAML 1.2
+---
+imports:
+  - resource: secret_parameters.yml
+
+parameters:
+  ISTEX_JOBS_USE_CACHE_LOOKUP: true
+  ISTEX_JOBS_API_URL: https://api.istex.fr
+  ISTEX_JOBS_REVIEW_URL: https://revue-sommaire.data.istex.fr
+
+app:
+  sid: istex-jobs
+
+
+istex:
+  api:
+    url: %env(ISTEX_JOBS_API_URL)%
+
+    # Boolean This should stay disabled when making requests to internal hostnames, @see https://www.npmjs.com/package/got#dnscache
+    useCacheLookup: %env(ISTEX_JOBS_USE_CACHE_LOOKUP)%
+
+    # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
+    timeout:
+     response: 10000 # ms
+
+  review:
+    url: %env(ISTEX_JOBS_REVIEW_URL)%
+    # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
+    timeout:
+     response: 5000 # ms
+
+exchange:
+    outputPath: ./output/exchange
+
+nodeMailer:
+   transports:
+        main:
+            host: %env(ISTEX_JOBS_MAILER_HOST)%
+            port: %env(ISTEX_JOBS_MAILER_PORT)%
+
+
+nodejs:
+  stackTraceLimit: 40

@@ -6,13 +6,13 @@ const { generateKbart, generateHoldings } = require('./src/tasks/index');
   //  [{ corpus: 'bmj' }],
   //  '*',
   //  'Generate allTitle KBART',
-  //  { sendMailOnErrorTo: ['jean-joffrey.parentin@inist.fr'] },
+  //  { sendMailOnErrorTo: [] },
   //);
   const job = scheduleJob(generateHoldings,
     [{ corpus: 'wiley', force: false }],
     '*',
     'Generate allTitle Holdings',
-    { sendMailOnErrorTo: ['jean-joffrey.parentin@inist.fr'] },
+    { sendMailOnErrorTo: [] },
   );
 
 })()

@@ -15,6 +15,6 @@ describe('generateKbart()', function () {
 describe.only('generateHoldings()', function () {
   it('Should write a Kbart file', function () {
     this.timeout(30000);
-    return generateHoldings.call(logEmitter, { force: true });
+    return generateHoldings.call(logEmitter, { force: false });
   });
 });

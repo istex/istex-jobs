@@ -2,15 +2,26 @@
 ---
 imports:
   - resource: secret_parameters.yml
+  - resource: ../package.json
+    pick:
+        name: app.name
+        version: app.version
 
 parameters:
   ISTEX_JOBS_USE_CACHE_LOOKUP: true
   ISTEX_JOBS_API_URL: https://api.istex.fr
   ISTEX_JOBS_REVIEW_URL: https://revue-sommaire.data.istex.fr
+  ISTEX_JOBS_API_HOST: 0.0.0.0
+  ISTEX_JOBS_API_PORT: 8080
+  ISTEX_JOBS_LOG_PATH: /var/log
+  ISTEX_JOBS_REVERSE_PROXY: false
 
 app:
   sid: istex-jobs
+  useEthereal: false
 
+security:
+  reverseProxy: %env(ISTEX_JOBS_REVERSE_PROXY)%
 
 istex:
   api:
@@ -37,7 +48,19 @@ nodeMailer:
         main:
             host: %env(ISTEX_JOBS_MAILER_HOST)%
             port: %env(ISTEX_JOBS_MAILER_PORT)%
+   onErrorTo: %env(ISTEX_JOBS_MAILER_TO)%
 
+
+log:
+  path: %env(ISTEX_JOBS_LOG_PATH)%
+
+express:
+  api:
+    host: %env(ISTEX_JOBS_API_HOST)%
+    port: %env(ISTEX_JOBS_API_PORT)%
+  allowedAccessMethods:
+    - GET
+    - OPTIONS
 
 nodejs:
   stackTraceLimit: 40

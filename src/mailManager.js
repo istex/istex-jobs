@@ -19,7 +19,6 @@ async function sendErrorMail ({ to = [], subject = '', text = '' } = {}, { trans
 
 async function getEtherealTransport () {
   const testAccount = await nodemailer.createTestAccount();
-
   return {
     host: 'smtp.ethereal.email',
     port: 587,

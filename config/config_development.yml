@@ -4,3 +4,6 @@
 
 imports:
   - resource: config.yml
+
+# nodeMailer:
+#     useEthereal: true

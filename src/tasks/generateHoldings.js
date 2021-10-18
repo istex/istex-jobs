@@ -10,12 +10,11 @@ const _ = require('lodash');
 module.exports = async function generateHoldings ({
   reviewBaseUrl,
   apiBaseUrl,
-  parallel,
+  parallel = 2, // we need to limit the parallel coz all findCorpus are launch at the same time
   outputPath = exchangeOutputPath,
   force = false,
 } = {}) {
   outputPath = path.join(outputPath, 'holdings');
-
   if (!await isExchangeGenerationNeeded({ outputPath, apiBaseUrl, reviewBaseUrl }) && !force) {
     this?.emit?.('runNotNeeded', 'There is no new data since the last job run.');
     return;

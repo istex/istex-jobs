@@ -2,7 +2,8 @@ const assert = require('assert').strict;
 const schedule = require('node-schedule');
 const parser = require('cron-parser');
 const { logInfo, logSuccess, logError, getUtcDate } = require('../helpers/logger');
-const { sendErrorMail } = require('./mailManager');
+const { sendErrorMail, getEtherealTransport } = require('./mailManager');
+const { app } = require('@istex/config-component').get(module);
 
 module.exports.scheduleJob = scheduleJob;
 
@@ -61,10 +62,15 @@ function scheduleJob (
   job.on('error',
     async function (reason) {
       if (sendMailOnErrorTo.length === 0) return;
+      let transport;
+      if (app.useEthereal === true) { transport = await getEtherealTransport(); }
+
       sendErrorMail({
         to: sendMailOnErrorTo,
         subject: `<istex-jobs> [Error] on task: ${this.name}`,
         text: `[${getUtcDate()}] An error occur on task: ${this.name}\n${reason}`,
+      }, {
+        transport,
       })
         .catch((reason) => {
           logError(reason);

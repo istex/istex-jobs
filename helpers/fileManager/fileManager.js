@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const { join } = require('path');
 
-const KBART_FILE = 'kbart.json';
+const EXCHANGE_FILE = 'exchange.json';
 const REVIEW_FILE = 'review.json';
 
 module.exports.getExchangeLastGenerationDate = getExchangeLastGenerationDate;
@@ -11,7 +11,7 @@ module.exports.saveReviewLastDocCount = saveReviewLastDocCount;
 
 function getExchangeLastGenerationDate (path = './') {
   return new Promise((resolve, reject) => {
-    fs.readJson(join(path, KBART_FILE))
+    fs.readJson(join(path, EXCHANGE_FILE))
       .then(({ lastGenerationDate }) => resolve(lastGenerationDate))
       .catch((reason) => {
         if (reason.code === 'ENOENT') return resolve(0);
@@ -22,7 +22,7 @@ function getExchangeLastGenerationDate (path = './') {
 }
 
 function saveExchangeLastGenerationDate (path = './') {
-  return fs.outputJson(join(path, KBART_FILE), { lastGenerationDate: Date.now() });
+  return fs.outputJson(join(path, EXCHANGE_FILE), { lastGenerationDate: Date.now() });
 }
 
 function getReviewLastDocCount (path = './') {

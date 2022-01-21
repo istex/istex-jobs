@@ -20,7 +20,6 @@ module.exports.getReviewLastUpdate = getReviewLastUpdate;
  */
 function findDocumentsBy ({ uri, type, corpus, title, maxSize, reviewBaseUrl = istex.review.url } = {}) {
   maxSize = typeof maxSize === 'number' ? maxSize.toString() : maxSize;
-
   const reviewUrl = new URL('api/run/all-documents', reviewBaseUrl);
   reviewUrl.search = new URLSearchParams(
     pickBy(

@@ -9,7 +9,7 @@ imports:
 
 parameters:
   ISTEX_JOBS_USE_CACHE_LOOKUP: true
-  ISTEX_JOBS_API_URL: https://api.istex.fr
+  ISTEX_JOBS_ISTEX_API_URL: https://api.istex.fr
   ISTEX_JOBS_REVIEW_URL: https://revue-sommaire.data.istex.fr
   ISTEX_JOBS_API_HOST: 0.0.0.0
   ISTEX_JOBS_API_PORT: 8080
@@ -19,13 +19,15 @@ parameters:
 app:
   sid: istex-jobs
   useEthereal: false
+  configPath: ./config.json
+  doExitOnUnhandledRejection: true
 
 security:
   reverseProxy: %env(ISTEX_JOBS_REVERSE_PROXY)%
 
 istex:
   api:
-    url: %env(ISTEX_JOBS_API_URL)%
+    url: %env(ISTEX_JOBS_ISTEX_API_URL)%
 
     # Boolean This should stay disabled when making requests to internal hostnames, @see https://www.npmjs.com/package/got#dnscache
     useCacheLookup: %env(ISTEX_JOBS_USE_CACHE_LOOKUP)%

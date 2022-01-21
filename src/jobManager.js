@@ -1,7 +1,7 @@
 const assert = require('assert').strict;
 const schedule = require('node-schedule');
 const parser = require('cron-parser');
-const { logInfo, logSuccess, logError, getUtcDate } = require('../helpers/logger');
+const { logInfo, logSuccess, logWarning, logError, getUtcDate } = require('../helpers/logger');
 const { sendErrorMail, getEtherealTransport } = require('./mailManager');
 const { app } = require('@istex/config-component').get(module);
 
@@ -9,44 +9,53 @@ module.exports.scheduleJob = scheduleJob;
 
 function scheduleJob (
   task,
-  taskArgs,
-  spec,
-  jobName,
+  taskArgs = [],
+  spec = '* * * * *',
+  jobName = null,
+  isOneTimeJob = false,
   {
     sendMailOnErrorTo = [],
   } = {},
 ) {
-  assert.strictEqual(typeof task, 'function', 'Expect func to be a Function');
-  assert.ok(Array.isArray(taskArgs), 'Expect funcArgs to be a Array');
+  assert.strictEqual(typeof task, 'function', 'Expect task to be a Function');
+  assert.ok(Array.isArray(taskArgs), 'Expect taskArgs to be a Array');
   assert.strictEqual(typeof spec, 'string', 'Expect spec to be a String');
   parser.parseExpression(spec); // Expect spec to be a valid Cron expression
   assert.strictEqual(Array.isArray(sendMailOnErrorTo), true, 'Expect sendMailOnErrorTo to be a Array');
 
   const args = [
-    spec,
-    function f (fireDate) {
-      return task.call(this, ...taskArgs)
-        .then(() => this.emit('finished'))
-        .catch((reason) => {
-          this.emit('error', reason);
-        });
+    function f () {
+      if (this.running > 0) {
+        this?.emit('abort', 'Job already running');
+        return;
+      }
+      if (isOneTimeJob) {
+        this.cancel();
+      }
+      return task.call(this, ...taskArgs);
     }];
 
   if (typeof jobName === 'string') args.unshift(jobName);
 
-  const job = schedule.scheduleJob(...args);
+  const job = new schedule.Job(...args);
 
-  job.on('runNotNeeded', function (reason) {
-    logInfo(`Job ${this?.name?.bold} doesn't need to run: ${reason}`);
+  job.on('abort', function (reason) {
+    this.job.aborted = true;
+    logWarning(`Job ${this?.name?.bold} aborted: ${reason ?? ''}`);
   });
+
+  job.on('canceled',
+    function (fireDate) { logWarning(`Job ${this?.name?.bold} scheduled to start at [${getUtcDate(fireDate)}] is canceled`); });
 
   job.on('run', function (fireDate) {
     logInfo(`Job ${this?.name?.bold} started`);
   });
 
-  job.on('finished',
+  job.on('success',
     function () {
-      logInfo(`Job ${this?.name?.bold} finished`);
+      const message = `Job ${this?.name?.bold} finished ${this.job.aborted === true ? 'and was aborted' : 'with success'}` +
+                      `${this.nextInvocation() ? ', next schedule at [' + getUtcDate(this.nextInvocation()) + ']' : ''}`;
+      logSuccess(message);
     });
 
   job.on('scheduled', function (fireDate) {
@@ -76,6 +85,8 @@ function scheduleJob (
           logError(reason);
         });
     });
+
+  job.schedule(spec);
 
   return job;
 }

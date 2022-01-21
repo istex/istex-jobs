@@ -44,7 +44,7 @@
     "highland": "^2.13.5",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
-    "node-schedule": "^1.3.2",
+    "node-schedule": "^2.0.0",
     "nodemailer": "^6.6.5",
     "semver": "^7.3.5",
     "stream-json": "^1.7.2",

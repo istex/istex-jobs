@@ -1,0 +1,15 @@
+{
+  "jobs": [
+    {
+      "task": "generateKbart",
+      "taskArgs": [
+      ],
+      "spec": "* * * * *",
+      "jobName": "Generate allTitle KBART",
+
+      "options": {
+        "sendMailOnErrorTo": []
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@ const { corpusTypes } = require('./reviewModel');
 const isExchangeGenerationNeeded = require('../isExchangeGenerationNeeded');
 const { findDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
 const { saveExchangeLastGenerationDate, saveReviewLastDocCount } = require('../../helpers/fileManager/fileManager');
-const { exchange: { outputPath: exchangeOutputPath } } = require('@istex/config-component').get(module);
+const { exchange: { outputPath: defaultOutputPath } } = require('@istex/config-component').get(module);
 const path = require('path');
 const _ = require('lodash');
 
@@ -11,12 +11,12 @@ module.exports = async function generateHoldings ({
   reviewBaseUrl,
   apiBaseUrl,
   parallel = 2, // we need to limit the parallel coz all findCorpus are launch at the same time
-  outputPath = exchangeOutputPath,
+  outputPath = defaultOutputPath,
   force = false,
 } = {}) {
   outputPath = path.join(outputPath, 'holdings');
   if (!await isExchangeGenerationNeeded({ outputPath, apiBaseUrl, reviewBaseUrl }) && !force) {
-    this?.emit?.('runNotNeeded', 'There is no new data since the last job run.');
+    this?.emit?.('abort', 'There is no new data since the last job run.');
     return;
   }
   const holdingsPromises = _.chain(corpusTypes)
@@ -43,7 +43,7 @@ function findCorpus (corpus, { reviewBaseUrl, apiBaseUrl, parallel, outputPath, 
     .then((totalCount) => {
       return new Promise((resolve, reject) => {
         if (totalCount === 0) {
-          this?.emit?.('runNotNeeded',
+          this?.emit?.('abort',
             `No results for corpus: ${corpus}, reviewBaseUrl: ${reviewBaseUrl ?? 'Not specified'}`);
           return resolve();
         }

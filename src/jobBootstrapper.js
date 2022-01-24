@@ -13,8 +13,8 @@ async function bootstrap (appConfigPath = app.configPath) {
       assert.ok(Array.isArray(jobs), 'Expect jobs to be a Array');
       if (!jobs || !jobs.length) return;
 
-      jobs.forEach(({ task, taskArgs, spec, jobName, isOneTimeJob, option } = {}) => {
-        scheduleJob(tasks[task], taskArgs, spec, jobName, isOneTimeJob, option);
+      jobs.forEach(({ task, taskArgs, spec, jobName, isOneTimeJob, options } = {}) => {
+        scheduleJob(tasks[task], taskArgs, spec, jobName, isOneTimeJob, options);
       });
     });
 }

@@ -4,7 +4,10 @@ const { nodeMailer: { transports } = {} } = require('@istex/config-component').g
 module.exports.sendErrorMail = sendErrorMail;
 module.exports.getEtherealTransport = getEtherealTransport;
 
-async function sendErrorMail ({ to = [], subject = '', text = '' } = {}, { transport = transports.main } = {}) {
+async function sendErrorMail (
+  { to = [], subject = '', text = '' } = {},
+  { transport = transports.default } = {},
+) {
   const transporter = nodemailer.createTransport(transport);
 
   const info = await transporter.sendMail({
@@ -14,7 +17,7 @@ async function sendErrorMail ({ to = [], subject = '', text = '' } = {}, { trans
     text,
   });
 
-  console.dir(info);
+  return info;
 }
 
 async function getEtherealTransport () {

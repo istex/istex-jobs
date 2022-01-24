@@ -18,7 +18,6 @@ parameters:
 
 app:
   sid: istex-jobs
-  useEthereal: false
   configPath: ./config.json
   doExitOnUnhandledRejection: true
 
@@ -46,8 +45,9 @@ exchange:
     outputPath: ./output/exchange
 
 nodeMailer:
+   useEthereal: false
    transports:
-        main:
+        default:
             host: %env(ISTEX_JOBS_MAILER_HOST)%
             port: %env(ISTEX_JOBS_MAILER_PORT)%
    onErrorTo: %env(ISTEX_JOBS_MAILER_TO)%

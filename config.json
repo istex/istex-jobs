@@ -1,12 +1,12 @@
 {
   "jobs": [
     {
-      "task": "generateKbart",
+      "task": "generateHoldings",
       "taskArgs": [
       ],
-      "spec": "* * * * *",
+      "spec": "* * * * * *",
       "jobName": "Generate allTitle KBART",
-
+      "isOneTimeJob": true,
       "options": {
         "sendMailOnErrorTo": []
       }

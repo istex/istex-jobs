@@ -9,7 +9,6 @@ module.exports.bootstrap = bootstrap;
 async function bootstrap (appConfigPath = app.configPath) {
   return fs.readJson(appConfigPath)
     .then(({ jobs = [] } = {}) => {
-      console.dir(jobs);
       assert.ok(Array.isArray(jobs), 'Expect jobs to be a Array');
       if (!jobs || !jobs.length) return;
 

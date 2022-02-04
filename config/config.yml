@@ -6,6 +6,7 @@ imports:
     pick:
         name: app.name
         version: app.version
+  - resource: ../config.json
 
 parameters:
   ISTEX_JOBS_USE_CACHE_LOOKUP: true
@@ -33,13 +34,14 @@ istex:
 
     # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
     timeout:
-     response: 10000 # ms
+     response: 20000 # ms
 
   review:
     url: %env(ISTEX_JOBS_REVIEW_URL)%
     # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
     timeout:
-     response: 5000 # ms
+     socket: 30000
+     response: 30000 # ms
 
 exchange:
     outputPath: ./output/exchange

@@ -3,9 +3,38 @@
     {
       "task": "generateHoldings",
       "taskArgs": [
+        {
+        }
+      ],
+      "spec": "0 0 * * *",
+      "jobName": "Generate Holdings",
+      "options": {
+        "sendMailOnErrorTo": []
+      }
+    },
+    {
+      "task": "generateKbart",
+      "taskArgs": [
+        {
+        }
+      ],
+      "spec": "0 2 * * *",
+      "jobName": "Generate allTitle KBART",
+      "options": {
+        "sendMailOnErrorTo": []
+      }
+    },
+    {
+      "task": "generateHoldings",
+      "taskArgs": [
+        {
+          "force": true,
+          "contacts": ["Claude NIEDERLENDER <claude.niederlender@inist.fr>","Jean-Joffrey PARENTIN <jean-joffrey.parentin@inist.fr>"]
+
+        }
       ],
       "spec": "* * * * * *",
-      "jobName": "Generate allTitle KBART",
+      "jobName": "Generate Holdings once ASAP",
       "isOneTimeJob": true,
       "options": {
         "sendMailOnErrorTo": []

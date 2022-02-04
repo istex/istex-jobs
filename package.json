@@ -30,6 +30,7 @@
   "dependencies": {
     "@istex/config-component": "^1.4.0",
     "@istex/istex-exchange": "^1.2.2",
+    "@supercharge/promise-pool": "^2.1.0",
     "cacheable-lookup": "^6.0.1",
     "colors": "^1.4.0",
     "compression": "^1.7.4",

@@ -2,24 +2,22 @@
 
 module.exports = {
   corpusTypes: {
-    elsevier: 'journals',
+    acs: 'journals',
     wiley: 'journals',
+    elsevier: 'journals',
     'springer-journals': 'journals',
     oup: 'journals',
     'springer-ebooks': 'ebooks',
     cambridge: 'journals',
-    acs: 'journals',
     sage: 'journals',
     bmj: 'journals',
     iop: 'journals',
     nature: 'journals',
     'rsc-journals': 'journals',
     'degruyter-journals': 'journals',
-    ecco: 'ebooks',
     'edp-sciences': 'journals',
     emerald: 'journals',
     'brill-journals': 'journals',
-    eebo: 'ebooks',
     rsl: 'journals',
     'brepols-journals': 'journals',
     'rsc-ebooks': 'ebooks',
@@ -32,6 +30,7 @@ module.exports = {
     duke: 'journals',
     'taylor-francis': 'ebooks',
     'numerique-premium': 'ebooks',
-
+    ecco: 'ebooks',
+    eebo: 'ebooks',
   },
 };

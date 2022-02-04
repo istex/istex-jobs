@@ -24,9 +24,8 @@ function scheduleJob (
   parser.parseExpression(spec); // Expect spec to be a valid Cron expression
   assert.strictEqual(Array.isArray(sendMailOnErrorTo), true, 'Expect <sendMailOnErrorTo> to be a {Array}');
   assert.strictEqual(typeof isOneTimeJob, 'boolean', 'Expect <isOneTimeJob> to be a {boolean}');
-
   const args = [
-    function f () {
+    async function taskRunner () {
       if (this.running > 0) {
         this?.emit('abort', 'Job already running');
         return;
@@ -34,7 +33,7 @@ function scheduleJob (
       if (isOneTimeJob) {
         this.cancel();
       }
-      return task.call(this, ...taskArgs);
+      return await task.call(this, ...taskArgs);
     }];
 
   if (typeof jobName === 'string') args.unshift(jobName);

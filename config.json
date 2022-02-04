@@ -23,22 +23,6 @@
       "options": {
         "sendMailOnErrorTo": []
       }
-    },
-    {
-      "task": "generateHoldings",
-      "taskArgs": [
-        {
-          "force": true,
-          "contacts": ["Claude NIEDERLENDER <claude.niederlender@inist.fr>","Jean-Joffrey PARENTIN <jean-joffrey.parentin@inist.fr>"]
-
-        }
-      ],
-      "spec": "* * * * * *",
-      "jobName": "Generate Holdings once ASAP",
-      "isOneTimeJob": true,
-      "options": {
-        "sendMailOnErrorTo": []
-      }
     }
   ]
 }

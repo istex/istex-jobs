@@ -1,9 +1,9 @@
 const { exchange, toXmlHoldings, writeXmlHoldings, buildInstitutionalLinks } = require('@istex/istex-exchange');
-const { corpusTypes } = require('./reviewModel');
+const { corpusType } = require('../../helpers/reviewModel');
 const isExchangeGenerationNeeded = require('../isExchangeGenerationNeeded');
-const { findDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
+const { paginatedFindDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
 const { saveExchangeLastGenerationDate, saveReviewLastDocCount } = require('../../helpers/fileManager/fileManager');
-const { exchange: { outputPath: defaultOutputPath }, istex } = require('@istex/config-component').get(module);
+const { exchange: { outputPath: defaultOutputPath }, istex, tasks } = require('@istex/config-component').get(module);
 const path = require('path');
 const _ = require('lodash');
 const fs = require('fs-extra');
@@ -23,13 +23,14 @@ const { PromisePool } = require('@supercharge/promise-pool');
  * @returns {Promise<TResult1>}
  */
 module.exports = async function generateHoldings ({
-  reviewBaseUrl = istex.review.url,
-  apiBaseUrl = istex.api.url,
-  concurency = 3,
-  parallel = 5,
-  outputPath = defaultOutputPath,
   titleBaseUrl = istex.review.url,
   contacts = [],
+  corpusBlackList = tasks.generateHoldings.corpusBlackList,
+  reviewBaseUrl = istex.review.url,
+  apiBaseUrl = istex.api.url,
+  concurency = 2,
+  parallel = 7,
+  outputPath = defaultOutputPath,
   force = false,
   doWarn = false,
 } = {}) {
@@ -41,7 +42,8 @@ module.exports = async function generateHoldings ({
     return;
   }
 
-  const corpusNames = _.keys(corpusTypes);
+  const corpusNames = _(corpusType).keys().without(...corpusBlackList).value();
+
   if (corpusNames.length === 0) {
     this?.emit?.('abort', 'No corpus listed.');
     return;
@@ -63,7 +65,7 @@ module.exports = async function generateHoldings ({
         { titleBaseUrl, reviewBaseUrl, apiBaseUrl, parallel, outputPath: tmpOutputPath, doWarn, pool },
       );
     })
-    .then((results) => {
+    .then(() => {
       return fs.readdir(tmpOutputPath)
         .then((files) => {
           const holdingsFiles = _.chain(files)
@@ -107,11 +109,11 @@ function _generateAndWriteHoldings (corpus, {
             `No results for corpus: ${corpus}, reviewBaseUrl: ${reviewBaseUrl ?? 'Not specified'}`);
           return resolve();
         }
-        return findDocumentsBy({ corpus, maxSize: totalCount, reviewBaseUrl })
+        return paginatedFindDocumentsBy({ corpus, pageSize: 250, limit: totalCount, reviewBaseUrl })
           .tap(() => { if (pool.hasError === true) { throw new Error('End the stream'); } })
           .through(exchange({ reviewUrl: titleBaseUrl, apiUrl: apiBaseUrl, parallel, doWarn }))
           .through(toXmlHoldings())
-          .through(writeXmlHoldings({ corpusName: corpus, type: corpusTypes[corpus], outputPath }))
+          .through(writeXmlHoldings({ corpusName: corpus, type: corpusType[corpus], outputPath }))
           .stopOnError(reject)
           .done(resolve);
       });

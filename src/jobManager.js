@@ -4,8 +4,7 @@ const parser = require('cron-parser');
 const { logInfo, logSuccess, logWarning, logError, getUtcDate } = require('../helpers/logger');
 const { sendErrorMail, getEtherealTransport } = require('./mailManager');
 const nodemailer = require('nodemailer');
-const { app, nodeMailer } = require('@istex/config-component').get(module);
-
+const { nodeMailer } = require('@istex/config-component').get(module);
 module.exports.scheduleJob = scheduleJob;
 
 function scheduleJob (
@@ -24,24 +23,25 @@ function scheduleJob (
   parser.parseExpression(spec); // Expect spec to be a valid Cron expression
   assert.strictEqual(Array.isArray(sendMailOnErrorTo), true, 'Expect <sendMailOnErrorTo> to be a {Array}');
   assert.strictEqual(typeof isOneTimeJob, 'boolean', 'Expect <isOneTimeJob> to be a {boolean}');
-  const args = [
-    async function taskRunner () {
-      if (this.running > 0) {
-        this?.emit('abort', 'Job already running');
-        return;
-      }
-      if (isOneTimeJob) {
-        this.cancel();
-      }
-      return await task.call(this, ...taskArgs);
-    }];
 
-  if (typeof jobName === 'string') args.unshift(jobName);
+  const jobArgs = [];
 
-  const job = new schedule.Job(...args);
+  async function taskRunner () {
+    if (this.running > 0) {
+      return await null;
+    }
+
+    return await task.call(this, ...taskArgs);
+  }
+
+  taskRunner.task = task;
+
+  if (typeof jobName === 'string') jobArgs.push(jobName);
+  jobArgs.push(taskRunner);
+
+  const job = new schedule.Job(...jobArgs);
 
   job.on('abort', function (reason) {
-    this.job.aborted = true;
     logWarning(`Job ${this?.name?.bold} aborted: ${reason ?? ''}`);
   });
 
@@ -54,9 +54,13 @@ function scheduleJob (
 
   job.on('success',
     function () {
-      const message = `Job ${this?.name?.bold} finished ${this.job.aborted === true ? 'and was aborted' : 'with success'}` +
+      const message = `Job ${this?.name?.bold} finished with no error` +
                       `${this.nextInvocation() ? ', next schedule at [' + getUtcDate(this.nextInvocation()) + ']' : ''}`;
       logSuccess(message);
+
+      if (!isOneTimeJob) {
+        this.reschedule({ rule: spec, end: new Date(parser.parseExpression(spec).next().getTime() + 500) });
+      }
     });
 
   job.on('scheduled', function (fireDate) {
@@ -67,13 +71,20 @@ function scheduleJob (
     function (reason) {
       logError(`Job ${this?.name?.bold} stopped with error`);
       logError(reason);
+
+      if (!isOneTimeJob) {
+        this.reschedule({ rule: spec, end: new Date(parser.parseExpression(spec).next().getTime() + 500) });
+      }
     });
 
   job.on('error',
     async function (reason) {
       if (sendMailOnErrorTo.length === 0) return;
       let transport;
-      if (nodeMailer.useEthereal === true) { transport = await getEtherealTransport(); }
+      if (nodeMailer.useEthereal === true) {
+        transport = await getEtherealTransport();
+        reason = new Error('Dummy error'); // We don't want to leak info
+      }
       sendErrorMail({
         to: sendMailOnErrorTo,
         subject: `<istex-jobs> [Error] on task: ${this.name}`,
@@ -91,7 +102,7 @@ function scheduleJob (
         });
     });
 
-  job.schedule(spec);
+  job.schedule({ rule: spec, end: new Date(parser.parseExpression(spec).next().getTime() + 500) });
 
   return job;
 }

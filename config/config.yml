@@ -9,7 +9,7 @@ imports:
   - resource: ../config.json
 
 parameters:
-  ISTEX_JOBS_USE_CACHE_LOOKUP: true
+  ISTEX_JOBS_USE_CACHE_LOOKUP: false
   ISTEX_JOBS_ISTEX_API_URL: https://api.istex.fr
   ISTEX_JOBS_REVIEW_URL: https://revue-sommaire.data.istex.fr
   ISTEX_JOBS_API_HOST: 0.0.0.0
@@ -22,6 +22,11 @@ app:
   configPath: ./config.json
   doExitOnUnhandledRejection: true
 
+tasks:
+    generateHoldings:
+        corpusBlackList:
+            - ecco
+            - eebo
 security:
   reverseProxy: %env(ISTEX_JOBS_REVERSE_PROXY)%
 
@@ -40,7 +45,7 @@ istex:
     url: %env(ISTEX_JOBS_REVIEW_URL)%
     # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
     timeout:
-     socket: 30000
+     socket: 60000
      response: 30000 # ms
 
 exchange:

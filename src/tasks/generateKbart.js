@@ -8,6 +8,7 @@ const path = require('path');
 
 /**
  * Task that generate KBART file by crossing information from Istex review and Istex API
+ * KBART file can be generated one corpus at a time or all corpuses at the same time.
  * @param {string} corpus Filter by corpus name
  * @param {string} type Filter by type serial/monograph
  * @param {string} reviewBaseUrl Base URl of Istex review

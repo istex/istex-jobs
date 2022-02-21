@@ -2,7 +2,7 @@
 
 const reviewClient = require('./reviewClient').getReviewClient();
 const { istex, app } = require('@istex/config-component').get(module);
-const { model } = require('./reviewModel');
+const { model } = require('../reviewModel');
 const { URL, URLSearchParams } = require('url');
 const { pickBy, isEmpty, get, chain } = require('lodash');
 const hl = require('highland');
@@ -11,9 +11,83 @@ const { streamArray } = require('stream-json/streamers/StreamArray');
 const { pick } = require('stream-json/filters/Pick');
 const VError = require('verror');
 
+module.exports.paginatedFindDocumentsBy = paginatedFindDocumentsBy;
 module.exports.findDocumentsBy = findDocumentsBy;
 module.exports.count = count;
 module.exports.getReviewLastUpdate = getReviewLastUpdate;
+
+/*
+ * @return {Object} return highland stream
+ */
+function paginatedFindDocumentsBy ({
+  uri,
+  type,
+  corpus,
+  title,
+  limit,
+  pageSize,
+  reviewBaseUrl = istex.review.url,
+} = {}) {
+  const reviewUrl = new URL('api/run/all-documents', reviewBaseUrl);
+  const searchParams = new URLSearchParams(
+    pickBy(
+      {
+        [model.uri]: uri,
+        [model.type]: type,
+        [model.corpus]: corpus,
+        [model.title]: title,
+        maxSize: String(pageSize) || '10',
+        sid: app.sid,
+      }, _isNotAnEmptyString));
+
+  return paginateStream(reviewUrl, { searchParams, pageSize, limit })
+    .stopOnError((error, push) => {
+      const requestUrl = decodeURIComponent(reviewUrl.toString());
+      const verror = VError(
+        { cause: error, name: 'ReviewRequestError', info: { reviewUrl } },
+        'Error requesting: %s',
+        requestUrl);
+      push(verror);
+    })
+    .reject(isEmpty); // Hack coz the route all-document return one empty Object if no result.
+}
+
+function paginateStream (url, { searchParams = {}, pageSize, limit = 10 }) {
+  const iterator = reviewClient.paginate(
+    url,
+    {
+      searchParams,
+      pagination: {
+        countLimit: limit,
+        stackAllItems: false,
+        transform: (response) => {
+          return (JSON.parse(response.body)?.data) || [];
+        },
+        paginate: function (response, allItems, currentItems) {
+          if (currentItems.length === 0 || pageSize == null) {
+            return false;
+          }
+          const previousSkip = response.request.options?.searchParams.get('skip') ?? 0;
+          return {
+            searchParams: {
+              skip: Number(previousSkip) + pageSize,
+            },
+          };
+        },
+      },
+    });
+
+  return hl(async (push, next) => {
+    const value = (await iterator.next()).value;
+
+    if (value == null) {
+      return push(null, hl.nil);
+    }
+
+    push(null, value);
+    next();
+  });
+}
 
 /*
  * @return {Object} return highland stream

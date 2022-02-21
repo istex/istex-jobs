@@ -1,25 +1,25 @@
 {
   "jobs": [
     {
+      "jobName": "Generate Holdings",
       "task": "generateHoldings",
       "taskArgs": [
         {
         }
       ],
       "spec": "0 0 * * *",
-      "jobName": "Generate Holdings",
       "options": {
         "sendMailOnErrorTo": []
       }
     },
     {
+      "jobName": "Generate allTitle KBART",
       "task": "generateKbart",
       "taskArgs": [
         {
         }
       ],
       "spec": "0 2 * * *",
-      "jobName": "Generate allTitle KBART",
       "options": {
         "sendMailOnErrorTo": []
       }

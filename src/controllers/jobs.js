@@ -1,14 +1,21 @@
 'use strict';
 
 const express = require('express');
-const { logError, logDebug, logWarning } = require('../../helpers/logger');
+const schedule = require('node-schedule');
+const _ = require('lodash');
 
 const router = module.exports = express.Router();
 
-
 // /jobs
 router.get('/jobs', (req, res, next) => {
-
-res.send('jobs');
+  const jobs = _(schedule.scheduledJobs)
+    .transform((accu, job, jobName) => {
+      accu[jobName] = {
+        taskName: job?.job?.task.name,
+        nextInvocationDate: job.nextInvocation(),
+        running: job.running,
+      };
+    })
+    .value();
+  res.send(jobs);
 });
-

@@ -1,8 +1,9 @@
 const { exchange, toKbart } = require('@istex/istex-exchange');
 const isExchangeGenerationNeeded = require('../isExchangeGenerationNeeded');
 const { findDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
-const { writeKbart } = require('../../helpers/writeKbart');
-const { saveExchangeLastGenerationDate, saveReviewLastDocCount } = require('../../helpers/fileManager/fileManager');
+const { writeKbart, buildKbartFilename } = require('../../helpers/writeKbart');
+const { saveExchangeLastGenerationDate, saveReviewLastDocCount, createKbartReferenceFile } = require(
+  '../../helpers/fileManager/fileManager');
 const { exchange: { outputPath: defaultOutputPath }, istex } = require('@istex/config-component').get(module);
 const path = require('path');
 
@@ -37,6 +38,7 @@ module.exports = async function generateKbart ({
 } = {}) {
   collectionName = collectionName ?? `${corpus ?? 'AllTitle'}${type ? '_' + type : ''}`;
   outputPath = path.join(outputPath, 'kbart', `${providerName}_${collectionName}`);
+  const filename = buildKbartFilename(providerName, collectionName);
 
   if (!await isExchangeGenerationNeeded({ outputPath, apiBaseUrl, reviewBaseUrl }) && !force) {
     this?.emit?.('abort', `There is no new data since the last job run for: ${collectionName}`);
@@ -54,13 +56,14 @@ module.exports = async function generateKbart ({
         return findDocumentsBy({ corpus, type, maxSize: totalCount, reviewBaseUrl })
           .through(exchange({ reviewUrl: titleBaseUrl, apiUrl: apiBaseUrl, parallel, doWarn }))
           .through(toKbart())
-          .through(writeKbart({ providerName, collectionName, outputPath }))
+          .through(writeKbart({ filename, outputPath }))
           .stopOnError(reject)
           .done(resolve);
       });
     }).then(() => {
       return saveExchangeLastGenerationDate(outputPath)
         .then(() => count({ reviewBaseUrl }))
-        .then((totalCount) => saveReviewLastDocCount(totalCount, outputPath));
+        .then((totalCount) => saveReviewLastDocCount(totalCount, outputPath))
+        .then(() => createKbartReferenceFile(filename, outputPath));
     });
 };

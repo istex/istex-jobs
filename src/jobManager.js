@@ -27,10 +27,6 @@ function scheduleJob (
   const jobArgs = [];
 
   async function taskRunner () {
-    if (this.running > 0) {
-      return await null;
-    }
-
     return await task.call(this, ...taskArgs);
   }
 

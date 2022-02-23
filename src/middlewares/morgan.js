@@ -1,4 +1,3 @@
-'use strict';
 const morgan = require('morgan');
 const config = require('@istex/config-component').get(module);
 const fileStreamRotator = require('file-stream-rotator');

@@ -78,7 +78,14 @@ function paginateStream (url, { searchParams = {}, pageSize, limit = 10 }) {
     });
 
   return hl(async (push, next) => {
-    const value = (await iterator.next()).value;
+    let value;
+    try {
+      value = (await iterator.next()).value;
+    } catch (err) {
+      push(err);
+      push(null, hl.nil);
+      return;
+    }
 
     if (value == null) {
       return push(null, hl.nil);

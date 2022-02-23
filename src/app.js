@@ -27,6 +27,8 @@ const notFoundHandler = require('./middlewares/notFoundHandler');
 const bodyParser = require('body-parser');
 const qs = require('querystringify');
 const userAgent = require('express-useragent');
+const path = require('path');
+const fs = require('fs-extra');
 
 module.exports.startServer = startServer;
 
@@ -42,16 +44,32 @@ async function startServer () {
         `${config.express.api.host + ':' + config.express.api.port}`.bold.success);
     },
   );
+  const path = require('path');
+
+  function setKbartHeaders (res) {
+    try {
+      const latest = fs.readJsonSync(path.join(__dirname,
+        '..',
+        config.exchange.outputPath,
+        'kbart/ISTEX_AllTitle/latest.json'));
+      res.set('Content-Disposition', `attachement; filename="${latest.latestKbartFilename}"`);
+    } catch (err) {
+      logWarning(err);
+    }
+  }
 
   app.set('etag', false);
   app.set('json spaces', 2);
   app.set('trust proxy', _.get(config.security, 'reverseProxy', false));
   app.set('query parser', (queryString) => qs.parse(queryString || ''));
   app.use(helmet({ noSniff: false }), morgan);
-
   app.use(bodyParser.json());
   app.use(resConfig, httpMethodsHandler);
   app.use(compression());
+  app.use(express.static(path.join(__dirname, '..', config.exchange.outputPath, 'holdings'))); // @todo make this dynamics
+  app.use('/kbart/latest.txt',
+    express.static(path.join(__dirname, '..', config.exchange.outputPath, 'kbart/ISTEX_AllTitle/latest.txt'),
+      { setHeaders: setKbartHeaders }));// @todo make this dynamics
   app.get('/', (req, res) => { res.redirect(`/v${semver.major(config.app.version)}`); });
   app.use(`/v${semver.major(config.app.version)}`, userAgent.express(), root, jobs);
   // This two must be last

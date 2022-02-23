@@ -10,12 +10,11 @@ const dateFormat = require('dateformat');
  * @see https://www.uksg.org/kbart/s5/guidelines/data_format
  */
 module.exports.writeKbart = function ({
-  providerName = 'ISTEX',
-  collectionName = 'AllTitle',
+  filename,
   outputPath = exchange.outputPath,
 } = {}) {
   return function (s) {
-    return s.consume(_writeKbart({ providerName, collectionName, outputPath }));
+    return s.consume(_writeKbart({ filename, outputPath }));
   };
 };
 
@@ -23,8 +22,7 @@ module.exports.writeKbart = function ({
 // private helpers
 //
 function _writeKbart ({
-  providerName = '',
-  collectionName = '',
+  filename = 'kbart.txt',
   outputPath = './',
 } = {}) {
   let isFirstIteration = true;
@@ -44,7 +42,7 @@ function _writeKbart ({
       fs.outputFile(
         path.join(
           outputPath,
-          `${providerName}_${collectionName}_${dateFormat(new Date(), 'yyyy-mm-dd')}.txt`,
+          filename,
         ),
         x,
         { flag, encoding: 'utf-8' },
@@ -58,4 +56,10 @@ function _writeKbart ({
         });
     }
   };
+}
+
+module.exports.buildKbartFilename = buildKbartFilename;
+
+function buildKbartFilename (providerName = 'provider', collectionName = 'NA') {
+  return `${providerName}_${collectionName}_${dateFormat(new Date(), 'yyyy-mm-dd')}.txt`;
 }

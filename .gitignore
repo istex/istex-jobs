@@ -162,3 +162,5 @@ postgresql.conf
 
 # Visual Studio Code
 .vscode
+
+*custom

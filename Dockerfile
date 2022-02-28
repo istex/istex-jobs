@@ -4,6 +4,7 @@ FROM node:14-alpine3.14
 # (to be able to use it in the crontab stuff)
 #RUN apt-get update && apt-get install -y git
 
+ENV NODE_ENV production
 RUN mkdir -p /app
 WORKDIR /app
 

@@ -13,7 +13,9 @@ function getReviewClient () {
 /* private helpers */
 function _getSearchOptions () {
   return {
-    retry: 0, /* We using stream under the hood so no retry unless implementing specifics behavior */
+    retry: {
+      limit: istex.review.retry,
+    },
     hooks: {
       beforeError: [
         error => {

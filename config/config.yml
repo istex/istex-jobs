@@ -24,6 +24,7 @@ security:
 
 istex:
   api:
+    retry: 5
     url: %env(ISTEX_JOBS_ISTEX_API_URL)%
 
     # Boolean This should stay disabled when making requests to internal hostnames, @see https://www.npmjs.com/package/got#dnscache
@@ -34,6 +35,7 @@ istex:
      response: 20000 # ms
 
   review:
+    retry: 5
     url: %env(ISTEX_JOBS_REVIEW_URL)%
     # timeout may be Object or Number, @see https://www.npmjs.com/package/got#timeout
     timeout:

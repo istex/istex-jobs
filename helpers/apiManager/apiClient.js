@@ -15,7 +15,9 @@ function getApiClient ({ useDnsCache = istex.api.useCacheLookup } = {}) {
 /* private helpers */
 function _getSearchOptions () {
   return {
-    retry: 0, /* We using stream under the hood so no retry unless implementing specifics behavior */
+    retry: {
+      limit: istex.api.retry,
+    },
     hooks: {
       beforeError: [
         error => {

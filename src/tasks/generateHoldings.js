@@ -8,7 +8,6 @@ const path = require('path');
 const _ = require('lodash');
 const fs = require('fs-extra');
 const { PromisePool } = require('@supercharge/promise-pool');
-console.log(tasks.generateHoldings.institutionalLinksPath)
 /**
  * Task to generate all title institutional holdings and links files
  * @param {string} reviewBaseUrl Url of the data review

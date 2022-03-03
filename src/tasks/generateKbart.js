@@ -1,6 +1,6 @@
 const { exchange, toKbart } = require('@istex/istex-exchange');
 const isExchangeGenerationNeeded = require('../isExchangeGenerationNeeded');
-const { findDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
+const { count, paginatedFindDocumentsBy } = require('../../helpers/reviewManager/reviewManager');
 const { writeKbart, buildKbartFilename } = require('../../helpers/writeKbart');
 const { saveExchangeLastGenerationDate, saveReviewLastDocCount, createKbartReferenceFile } = require(
   '../../helpers/fileManager/fileManager');
@@ -53,7 +53,7 @@ module.exports = async function generateKbart ({
             `No results for corpus: ${corpus}, reviewBaseUrl: ${reviewBaseUrl ?? 'Not specified'}`);
           return resolve();
         }
-        return findDocumentsBy({ corpus, type, maxSize: totalCount, reviewBaseUrl })
+        return paginatedFindDocumentsBy({ corpus, type, limit: totalCount, pageSize: 200, reviewBaseUrl })
           .through(exchange({ reviewUrl: titleBaseUrl, apiUrl: apiBaseUrl, parallel, doWarn }))
           .through(toKbart())
           .through(writeKbart({ filename, outputPath }))

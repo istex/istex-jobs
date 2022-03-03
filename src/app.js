@@ -44,7 +44,6 @@ async function startServer () {
         `${config.express.api.host + ':' + config.express.api.port}`.bold.success);
     },
   );
-  const path = require('path');
 
   function setKbartHeaders (res) {
     try {

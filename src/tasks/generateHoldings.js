@@ -8,7 +8,7 @@ const path = require('path');
 const _ = require('lodash');
 const fs = require('fs-extra');
 const { PromisePool } = require('@supercharge/promise-pool');
-
+console.log(tasks.generateHoldings.institutionalLinksPath)
 /**
  * Task to generate all title institutional holdings and links files
  * @param {string} reviewBaseUrl Url of the data review
@@ -45,7 +45,7 @@ module.exports = async function generateHoldings ({
   const corpusNames = _(corpusType).keys().without(...corpusBlackList).value();
 
   if (corpusNames.length === 0) {
-    this?.emit?.('abort', 'No corpus listed.');
+    this?.emit?.('abort', 'No corpus selected.');
     return;
   }
 
@@ -75,7 +75,7 @@ module.exports = async function generateHoldings ({
           const xml = buildInstitutionalLinks({ contacts, holdingsFiles });
 
           return fs.outputFile(
-            path.join(tmpOutputPath, 'institutional_links.xml'),
+            path.join(tmpOutputPath, tasks.generateHoldings.institutionalLinksPath),
             xml,
             { flag: 'w', encoding: 'utf-8' },
           );

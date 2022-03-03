@@ -16,9 +16,9 @@ app:
 
 tasks:
     generateHoldings:
-        corpusBlackList:
-            - ecco
-            - eebo
+        institutionalLinksPath: institutional_links_istex.xml
+        corpusBlackList: %ISTEX_JOBS_HOLDINGS_CORPUS_BLACKLIST%
+
 security:
   reverseProxy: %env(ISTEX_JOBS_REVERSE_PROXY)%
 

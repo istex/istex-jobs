@@ -68,5 +68,6 @@ module.exports = {
     duke: 'journals',
     'taylor-francis': 'ebooks',
     'numerique-premium': 'ebooks',
+    'brill-rgrwo': 'ebooks',
   },
 };

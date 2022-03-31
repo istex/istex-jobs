@@ -1,7 +1,7 @@
 const { exchange, toXmlHoldings, writeXmlHoldings, buildInstitutionalLinks } = require('@istex/istex-exchange');
 const { corpusType } = require('../../helpers/reviewModel');
 const isExchangeGenerationNeeded = require('../isExchangeGenerationNeeded');
-const { paginatedFindDocumentsBy, count } = require('../../helpers/reviewManager/reviewManager');
+const { paginatedFindDocumentsBy, count, getCorpuses } = require('../../helpers/reviewManager/reviewManager');
 const { saveExchangeLastGenerationDate, saveReviewLastDocCount } = require('../../helpers/fileManager/fileManager');
 const { exchange: { outputPath: defaultOutputPath }, istex, tasks } = require('@istex/config-component').get(module);
 const path = require('path');
@@ -24,7 +24,7 @@ const { PromisePool } = require('@supercharge/promise-pool');
 module.exports = async function generateHoldings ({
   titleBaseUrl = istex.review.url,
   contacts = [],
-  corpusBlackList = tasks.generateHoldings.corpusBlackList,
+  corpusBlackList = tasks.generateHoldings.corpusBlackList ?? [],
   reviewBaseUrl = istex.review.url,
   apiBaseUrl = istex.api.url,
   concurency = 2,
@@ -40,8 +40,8 @@ module.exports = async function generateHoldings ({
     this?.emit?.('abort', 'There is no new data since the last job run.');
     return;
   }
-
-  const corpusNames = _(corpusType).keys().without(...corpusBlackList).value();
+  const corpuses = await getCorpuses({ reviewBaseUrl });
+  const corpusNames = _(corpuses).keys().without(...corpusBlackList).value();
 
   if (corpusNames.length === 0) {
     this?.emit?.('abort', 'No corpus selected.');
@@ -112,7 +112,7 @@ function _generateAndWriteHoldings (corpus, {
           .tap(() => { if (pool.hasError === true) { throw new Error('End the stream'); } })
           .through(exchange({ reviewUrl: titleBaseUrl, apiUrl: apiBaseUrl, parallel, doWarn }))
           .through(toXmlHoldings())
-          .through(writeXmlHoldings({ corpusName: corpus, type: corpusType[corpus], outputPath }))
+          .through(writeXmlHoldings({ corpusName: corpus, type: corpusType[corpus] ?? '', outputPath }))
           .stopOnError(reject)
           .done(resolve);
       });

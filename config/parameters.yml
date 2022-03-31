@@ -8,6 +8,4 @@ parameters:
   ISTEX_JOBS_API_PORT: 8080
   ISTEX_JOBS_LOG_PATH: /var/log
   ISTEX_JOBS_REVERSE_PROXY: false
-  ISTEX_JOBS_HOLDINGS_CORPUS_BLACKLIST:
-              - ecco
-              - eebo
+  ISTEX_JOBS_HOLDINGS_CORPUS_BLACKLIST: ~

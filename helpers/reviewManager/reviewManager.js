@@ -4,17 +4,19 @@ const reviewClient = require('./reviewClient').getReviewClient();
 const { istex, app } = require('@istex/config-component').get(module);
 const { model } = require('../reviewModel');
 const { URL, URLSearchParams } = require('url');
-const { pickBy, isEmpty, get, chain } = require('lodash');
+const { pickBy, isEmpty, get, chain, transform, endsWith } = require('lodash');
 const hl = require('highland');
 const { parser } = require('stream-json');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const { pick } = require('stream-json/filters/Pick');
 const VError = require('verror');
+const { logWarning } = require('../../helpers/logger');
 
 module.exports.paginatedFindDocumentsBy = paginatedFindDocumentsBy;
 module.exports.findDocumentsBy = findDocumentsBy;
 module.exports.count = count;
 module.exports.getReviewLastUpdate = getReviewLastUpdate;
+module.exports.getCorpuses = getCorpuses;
 
 /*
  * @return {Object} return highland stream
@@ -42,6 +44,7 @@ function paginatedFindDocumentsBy ({
 
   return paginateStream(reviewUrl, { searchParams, pageSize, limit })
     .stopOnError((error, push) => {
+      reviewUrl.search = searchParams;
       const requestUrl = decodeURIComponent(reviewUrl.toString());
       const verror = VError(
         { cause: error, name: 'ReviewRequestError', info: { reviewUrl } },
@@ -53,6 +56,8 @@ function paginatedFindDocumentsBy ({
 }
 
 function paginateStream (url, { searchParams = {}, pageSize, limit = 10 }) {
+  const SILENT_ERROR = [];
+  SILENT_ERROR.skip = 0;
   const iterator = reviewClient.paginate(
     url,
     {
@@ -61,10 +66,22 @@ function paginateStream (url, { searchParams = {}, pageSize, limit = 10 }) {
         countLimit: limit,
         stackAllItems: false,
         transform: (response) => {
-          return (JSON.parse(response.body)?.data) || [];
+
+          if (!endsWith(response.body, ']}\n')) {
+            logWarning('Incomplete response body');
+            response.body += ']}\n';
+          }
+
+          try {
+            return (JSON.parse(response.body)?.data) || [];
+          } catch (e) {
+            logWarning(e);
+            SILENT_ERROR.skip++;
+            return SILENT_ERROR;
+          }
         },
         paginate: function (response, allItems, currentItems) {
-          if (currentItems.length === 0 || pageSize == null) {
+          if ((currentItems !== SILENT_ERROR && currentItems.length === 0) || pageSize == null || SILENT_ERROR.skip === 5) {
             return false;
           }
           const previousSkip = response.request.options?.searchParams.get('skip') ?? 0;
@@ -142,6 +159,23 @@ function count ({ type, corpus, title, reviewBaseUrl = istex.review.url } = {}) 
   return reviewClient(reviewUrl, { responseType: 'json' })
     .then((response) => {
       return get(response, 'body.total', 0);// Hack coz the route all-document return the "total" key if no result.
+    });
+}
+
+function getCorpuses ({ reviewBaseUrl = istex.review.url } = {}) {
+  const reviewUrl = new URL(`api/run/distinct-by/${model.corpus}`, reviewBaseUrl);
+
+  reviewUrl.search = new URLSearchParams(pickBy({
+    orderBy: 'value/asc',
+    sid: app.sid,
+  }, _isNotAnEmptyString));
+
+  return reviewClient(reviewUrl, { responseType: 'json' })
+    .then((response) => {
+      return transform(response?.body?.data,
+        (accu, value) => { accu[value._id] = value.value; },
+        [],
+      );
     });
 }
 

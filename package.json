@@ -1,6 +1,6 @@
 {
   "name": "istex-jobs",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Schedule manager for the creation of istex institutional holdings and such.",
   "main": "index.js",
   "scripts": {

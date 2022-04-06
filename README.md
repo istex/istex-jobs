@@ -31,3 +31,13 @@ Schedule manager for the creation of istex institutional holdings, kbart and suc
 * [force] (boolean):  Does the task must run even if not needed. Default: false 
 * [doWarn] (boolean): Does Exchange warn about failed request. Default: false
 ### generateHoldings
+#### parameters:
+* [contacts] (...string): contacts emails listed in the institutional_links file
+* [reviewBaseUrl] (string): The base url of the Istex review instance. Default: "https://revue-sommaire.data.istex.fr"
+* [apiBaseUrl] (string): The base url of the Istex API instance. Default: "https://api.istex.fr"
+* [parallel] (number): Number of parallel request to ISTEX API. The total number of request is parallel * concurency Default: 15
+* [concurency] (number): Number of concurent Corpus processed AKA number of concurent request to ISTEX review. Default: 2
+* [outputPath] (string): Where to generate files. Default: "./output/exchange"
+* [force] (boolean):  Does the task must run even if not needed. Default: false
+* [doWarn] (boolean): Does Exchange warn about failed request. Default: false
+

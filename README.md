@@ -11,7 +11,7 @@ Schedule manager for the creation of istex institutional holdings, kbart and suc
 #### parameters:
 * task (string): The task to invoke.
 * [taskArgs]  (...*): The arguments to invoke the task with. 
-* [specs] (string): A cron string to schedule the task. Default: "* * * * *"
+* [spec] (string): A cron string to schedule the task. Default: "* * * * *"
 * [jobName] (string): The job name. Default: randomName
 * [isOneTimeJob] (boolean): Invoke the task only once. Default: false
 * [options] (Object):

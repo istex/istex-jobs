@@ -6,15 +6,15 @@ const logEmitter = {
   emit: function () { console.info(arguments); },
 };
 describe('generateKbart()', function () {
-  it('Should write a Kbart file', function () {
+  it.only('Should write a Kbart file', function () {
     this.timeout(30000);
-    return generateKbart({ corpus: 'bmj' });
+    return generateKbart.call(logEmitter, { corpusBlackList: ['ecco', 'eebo', 'eeb2'], doWarn: true, force: true, parallel: 5 });
   });
 });
 
-describe.only('generateHoldings()', function () {
+describe('generateHoldings()', function () {
   it('Should write a Kbart file', function () {
     this.timeout(30000);
-    return generateHoldings.call(logEmitter, { force: false });
+    return generateHoldings.call(logEmitter, { corpusBlackList: ['ecco', 'eebo', 'eeb2'], doWarn: true, force: true, parallel: 5 });
   });
 });

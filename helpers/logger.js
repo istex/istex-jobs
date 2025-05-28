@@ -6,7 +6,7 @@ const trans = require('./trans');
 const colors = require('./myColors');
 const packageJson = require('../package.json')
 ;
-
+colors.disable()
 const appName = _.get(packageJson, 'name', 'myApp');
 
 module.exports.logInfo = logInfo;

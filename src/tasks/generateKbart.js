@@ -28,7 +28,7 @@ module.exports = async function generateKbart ({
   type,
   reviewBaseUrl = istex.review.url,
   apiBaseUrl = istex.api.url,
-  parallel = 15,
+  parallel = 5,
   titleBaseUrl = istex.review.url,
   providerName = 'ISTEX',
   collectionName,

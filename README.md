@@ -25,7 +25,7 @@ Schedule manager for the creation of istex institutional holdings, kbart and suc
 * [apiBaseUrl] (string): The base url of the Istex API instance. Default: "https://api.istex.fr"
 * [collectionName] (string): The generated collection name. Default: "allTitle" or "${corpus}_${type}"
 * [titleBaseUrl] (string): Url for building the title_url value, may be handy if reviewBaseUrl is different than titleBaseUrl. default: "https://revue-sommaire.data.istex.fr"
-* [parallel] (number): Number of parallel request to ISTEX API. Default: 15
+* [parallel] (number): Number of parallel request to ISTEX API. Default: 5
 * [providerName] (string): Provider name for the KBART file. Default: "ISTEX"
 * [outputPath] (string): Where to generate files. Default: "./output/exchange"
 * [force] (boolean):  Does the task must run even if not needed. Default: false 
@@ -35,7 +35,7 @@ Schedule manager for the creation of istex institutional holdings, kbart and suc
 * [contacts] (...string): contacts emails listed in the institutional_links file
 * [reviewBaseUrl] (string): The base url of the Istex review instance. Default: "https://revue-sommaire.data.istex.fr"
 * [apiBaseUrl] (string): The base url of the Istex API instance. Default: "https://api.istex.fr"
-* [parallel] (number): Number of parallel request to ISTEX API. The total number of request is parallel * concurency Default: 15
+* [parallel] (number): Number of parallel request to ISTEX API. The total number of request is parallel * concurency Default: 5
 * [concurency] (number): Number of concurent Corpus processed AKA number of concurent request to ISTEX review. Default: 2
 * [outputPath] (string): Where to generate files. Default: "./output/exchange"
 * [force] (boolean):  Does the task must run even if not needed. Default: false

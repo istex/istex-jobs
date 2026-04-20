@@ -1,6 +1,7 @@
 ### Misc ###
 note
-output/
+output*/
+backup/
 
 ### Api ###
 .jwt

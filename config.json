@@ -2,6 +2,51 @@
   "parameters": {},
   "jobs": [
     {
+      "jobName": "Generate allTitle KBART",
+      "task": "generateKbart",
+      "taskArgs": [
+        {
+          "corpus": "duke",
+          "doWarn": true,
+          "force": true,
+          "parallel": 1,
+          "reviewBaseUrl": "https://revue-sommaire.istex.fr/",
+          "apiBaseUrl": "https://api.istex.fr/",
+          "contacts": [
+            "Claude NIEDERLENDER <claude.niederlender@inist.fr>"
+          ]
+        }
+      ],
+      "spec": "* * * * *",
+      "options": {
+        "sendMailOnErrorTo": []
+      }
+    },
+    {
+      "jobName": "Generate Holdings",
+      "task": "generateHoldings",
+      "taskArgs": [
+        
+        {
+          "doWarn": true,
+          "force": true,
+          "parallel": 1,
+          "reviewBaseUrl": "https://revue-sommaire.istex.fr/",
+          "apiBaseUrl": "https://api.istex.fr/",
+          "contacts": [
+            "Claude NIEDERLENDER <claude.niederlender@inist.fr>"
+          ]
+        }
+      ],
+      "isOneTimeJob": true,
+      "spec": "* * 3 * *",
+      "options": {
+        "sendMailOnErrorTo": [
+          "Claude NIEDERLENDER <claude.niederlender@inist.fr>"
+        ]
+      }
+    },    
+    {
       "jobName": "Generate Holdings",
       "task": "generateHoldings",
       "taskArgs": [

@@ -1,10 +1,10 @@
-FROM node:14-alpine3.14
+FROM node:24.21.0-alpine3.24
 
 # to have git in the shell
 # (to be able to use it in the crontab stuff)
 #RUN apt-get update && apt-get install -y git
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 RUN mkdir -p /app
 WORKDIR /app
 
